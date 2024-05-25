@@ -1,0 +1,10 @@
+[19-May-2024 20:48:29 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'status' in 'field list' in C:\xampp\htdocs\cars\process_order.php:58
+Stack trace:
+#0 C:\xampp\htdocs\cars\process_order.php(58): mysqli->query('INSERT INTO ord...')
+#1 {main}
+  thrown in C:\xampp\htdocs\cars\process_order.php on line 58
+[19-May-2024 20:48:40 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'status' in 'field list' in C:\xampp\htdocs\cars\process_order.php:58
+Stack trace:
+#0 C:\xampp\htdocs\cars\process_order.php(58): mysqli->query('INSERT INTO ord...')
+#1 {main}
+  thrown in C:\xampp\htdocs\cars\process_order.php on line 58

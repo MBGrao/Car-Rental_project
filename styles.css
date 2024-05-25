@@ -1,0 +1,119 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8;
+    color: #333;
+}
+
+h1, h2 {
+    color: #2c3e50;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="date"],
+input[type="number"],
+input[type="submit"],
+button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+input[type="submit"],
+button {
+    background-color: #27ae60;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+input[type="submit"]:hover,
+button:hover {
+    background-color: #2ecc71;
+}
+
+#searchBox {
+    width: calc(100% - 22px);
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.categories {
+    padding: 10px;
+    background-color: #ecf0f1;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.category {
+    display: inline-block;
+    margin-right: 10px;
+    padding: 5px 10px;
+    background-color: #3498db;
+    color: white;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.category:hover {
+    background-color: #2980b9;
+}
+
+.car {
+    margin: 10px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: calc(30% - 22px);
+    box-sizing: border-box;
+    vertical-align: top;
+}
+
+.car h2 {
+    font-size: 1.2em;
+    margin: 0 0 10px;
+}
+
+.car img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+#carDetails {
+    padding: 10px;
+    background-color: #ecf0f1;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+#totalPrice {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+@media screen and (max-width: 768px) {
+    .car {
+        width: calc(50% - 22px);
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .car {
+        width: calc(100% - 22px);
+    }
+}

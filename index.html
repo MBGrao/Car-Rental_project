@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Rental</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        .car {
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            display: inline-block;
+            width: 30%;
+            box-sizing: border-box;
+            vertical-align: top;
+        }
+        .car h2 {
+            margin: 0;
+        }
+        .car img {
+            max-width: 100%;
+            height: auto;
+        }
+        .categories {
+            margin-bottom: 20px;
+        }
+        .category {
+            display: inline-block;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Available Cars</h1>
+
+    <input type="text" id="searchBox" placeholder="Search cars...">
+    <div class="categories">
+        <div class="category" data-type="type" data-value="Sedan">Sedan</div>
+        <div class="category" data-type="type" data-value="Wagon">Wagon</div>
+        <div class="category" data-type="type" data-value="SUV">SUV</div>
+        <div class="category" data-type="brand" data-value="Ford">Ford</div>
+        <div class="category" data-type="brand" data-value="Mazda">Mazda</div>
+        <div class="category" data-type="brand" data-value="BMW">BMW</div>
+    </div>
+
+    <div id="car-list"></div>
+
+    <h2>Place Your Rental Order</h2>
+    <form id="orderForm" action="process_order.php" method="post">
+        <label for="user_name">Name:</label><br>
+        <input type="text" id="user_name" name="user_name" required><br><br>
+        <label for="user_mobile">Mobile:</label><br>
+        <input type="text" id="user_mobile" name="user_mobile" required><br><br>
+        <label for="user_email">Email:</label><br>
+        <input type="email" id="user_email" name="user_email" required><br><br>
+        <label for="user_license">Driver's License:</label><br>
+        <input type="text" id="user_license" name="user_license" required><br><br>
+        <label for="car_id">Car ID:</label><br>
+        <input type="number" id="car_id" name="car_id" required readonly><br><br>
+        <label for="rent_start_date">Start Date:</label><br>
+        <input type="date" id="rent_start_date" name="rent_start_date" required><br><br>
+        <label for="rent_end_date">End Date:</label><br>
+        <input type="date" id="rent_end_date" name="rent_end_date" required><br><br>
+        <label for="quantity">Quantity:</label><br>
+        <input type="number" id="quantity" name="quantity" value="1" min="1" required><br><br>
+        <div id="carDetails"></div>
+        <label for="total_price">Total Price:</label><br>
+        <input type="text" id="total_price" name="total_price" readonly><br><br>
+        <input type="submit" value="Submit">
+        <button type="button" id="cancelReservation">Cancel Reservation</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchCars();
+            document.getElementById('searchBox').addEventListener('input', searchCars);
+            document.querySelectorAll('.category').forEach(category => {
+                category.addEventListener('click', filterCarsByCategory);
+            });
+
+            document.getElementById('rent_start_date').addEventListener('change', updateTotalPrice);
+            document.getElementById('rent_end_date').addEventListener('change', updateTotalPrice);
+            document.getElementById('quantity').addEventListener('input', updateTotalPrice);
+
+            document.getElementById('cancelReservation').addEventListener('click', cancelReservation);
+
+            // Resume reservation if exists
+            resumeReservation();
+        });
+
+        let allCars = [];
+        let selectedCar = null;
+
+        function fetchCars() {
+            fetch('cars.json')
+                .then(response => response.json())
+                .then(data => {
+                    allCars = data;
+                    displayCars(allCars);
+                })
+                .catch(error => console.error('Error fetching cars:', error));
+        }
+
+        function displayCars(cars) {
+            const carList = document.getElementById('car-list');
+            carList.innerHTML = '';
+            cars.forEach(car => {
+                const carDiv = document.createElement('div');
+                carDiv.className = 'car';
+                carDiv.innerHTML = `
+                    <h2>${car.make} ${car.model}</h2>
+                    <img src="images/${car.make.toLowerCase()}_${car.model.toLowerCase()}.jpg" alt="${car.make} ${car.model}">
+                    <p>Year: ${car.year}</p>
+                    <p>Color: ${car.color}</p>
+                    <p>Price per day: $${car.price_per_day}</p>
+                    <p>Availability: ${car.availability}</p>
+                    <p>Mileage: ${car.mileage}</p>
+                    <p>Fuel Type: ${car.fuel_type}</p>
+                    <p>Transmission: ${car.transmission}</p>
+                    <p>Number of Seats: ${car.number_of_seats}</p>
+                    <button type="button" onclick="selectCar(${car.car_id})">Select Car</button>
+                `;
+                carList.appendChild(carDiv);
+            });
+        }
+
+        function searchCars() {
+            const keyword = document.getElementById('searchBox').value.toLowerCase();
+            const filteredCars = allCars.filter(car => {
+                return car.make.toLowerCase().includes(keyword) || 
+                       car.model.toLowerCase().includes(keyword) || 
+                       car.year.toString().includes(keyword) || 
+                       car.color.toLowerCase().includes(keyword) ||
+                       car.fuel_type.toLowerCase().includes(keyword) || 
+                       car.transmission.toLowerCase().includes(keyword);
+            });
+            displayCars(filteredCars);
+        }
+
+        function filterCarsByCategory(event) {
+            const categoryType = event.target.getAttribute('data-type');
+            const categoryValue = event.target.getAttribute('data-value').toLowerCase();
+            const filteredCars = allCars.filter(car => car[categoryType].toLowerCase() === categoryValue);
+            displayCars(filteredCars);
+        }
+
+        function selectCar(car_id) {
+            selectedCar = allCars.find(car => car.car_id === car_id);
+            if (selectedCar) {
+                document.getElementById('car_id').value = selectedCar.car_id;
+                document.getElementById('carDetails').innerHTML = `
+                    <p>Selected Car: ${selectedCar.make} ${selectedCar.model}</p>
+                    <p>Price per day: $<span id="pricePerDay">${selectedCar.price_per_day}</span></p>
+                    <p id="totalPrice">Total Price: $0.00</p>
+                `;
+                updateTotalPrice();
+            }
+        }
+
+        function updateTotalPrice() {
+            const startDate = new Date(document.getElementById('rent_start_date').value);
+            const endDate = new Date(document.getElementById('rent_end_date').value);
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const pricePerDay = selectedCar ? selectedCar.price_per_day : 0;
+
+            if (isNaN(startDate) || isNaN(endDate) || isNaN(quantity)) {
+                document.getElementById('total_price').value = '0.00';
+                document.getElementById('totalPrice').innerText = `Total Price: $0.00`;
+                return;
+            }
+
+            const days = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+            if (days > 0 && pricePerDay > 0 && quantity > 0) {
+                const totalPrice = days * pricePerDay * quantity;
+                document.getElementById('total_price').value = totalPrice.toFixed(2);
+                document.getElementById('totalPrice').innerText = `Total Price: $${totalPrice.toFixed(2)}`;
+            } else {
+                document.getElementById('total_price').value = '0.00';
+                document.getElementById('totalPrice').innerText = `Total Price: $0.00`;
+            }
+        }
+
+        function cancelReservation() {
+            // Save reservation details in session storage
+            const reservationDetails = {
+                user_name: document.getElementById('user_name').value,
+                user_mobile: document.getElementById('user_mobile').value,
+                user_email: document.getElementById('user_email').value,
+                user_license: document.getElementById('user_license').value,
+                car_id: document.getElementById('car_id').value,
+                rent_start_date: document.getElementById('rent_start_date').value,
+                rent_end_date: document.getElementById('rent_end_date').value,
+                quantity: document.getElementById('quantity').value,
+                total_price: document.getElementById('total_price').value
+            };
+            sessionStorage.setItem('reservationDetails', JSON.stringify(reservationDetails));
+
+            // Clear the form
+            document.getElementById('orderForm').reset();
+            document.getElementById('carDetails').innerHTML = '';
+            document.getElementById('total_price').value = '';
+            document.getElementById('totalPrice').innerText = `Total Price: $0.00`;
+            selectedCar = null;
+        }
+
+        function resumeReservation() {
+            const reservationDetails = JSON.parse(sessionStorage.getItem('reservationDetails'));
+            if (reservationDetails) {
+                document.getElementById('user_name').value = reservationDetails.user_name;
+                document.getElementById('user_mobile').value = reservationDetails.user_mobile;
+                document.getElementById('user_email').value = reservationDetails.user_email;
+                document.getElementById('user_license').value = reservationDetails.user_license;
+                document.getElementById('car_id').value = reservationDetails.car_id;
+                document.getElementById('rent_start_date').value = reservationDetails.rent_start_date;
+                document.getElementById('rent_end_date').value = reservationDetails.rent_end_date;
+                document.getElementById('quantity').value = reservationDetails.quantity;
+                document.getElementById('total_price').value = reservationDetails.total_price;
+
+                // Simulate selecting the car again to display car details
+                selectCar(parseInt(reservationDetails.car_id));
+            }
+        }
+    </script>
+</body>
+</html>
